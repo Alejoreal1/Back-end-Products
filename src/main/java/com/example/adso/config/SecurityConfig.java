@@ -74,7 +74,7 @@ public CorsConfigurationSource corsConfigurationSource() {
     configuration.setAllowedOrigins(List.of(
             "http://localhost:4200",
             "https://back-end-products.onrender.com",
-            "https://front-end-products-six.vercel.app/" 
+            "https://front-end-products-six.vercel.app" 
     ));
 
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
