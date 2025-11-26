@@ -31,50 +31,36 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-        		.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // Deshabilitamos CSRF (Cross-Site Request Forgery) porque usamos JWT (stateless)
-                .csrf(csrf -> csrf.disable())
+ @Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/api/auth/**").permitAll()
 
-                // Definimos las reglas de autorización
-                .authorizeHttpRequests(authz -> authz
-                        // Endpoints públicos (registro y login)
-                        .requestMatchers("/api/auth/**").permitAll()
-                        
-                        // Endpoints de productos:
-                    .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/products").hasAnyRole("ADMIN", "USER")
+                // Productos públicos (GET)
+                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
 
+                // Crear productos solo ADMIN
+                .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
 
-                        // Todas las demás peticiones deben estar autenticadas
-                        .anyRequest().authenticated()
-                )
+                .anyRequest().authenticated()
+        )
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authenticationProvider(authenticationProvider)
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-                // Configuramos la gestión de sesiones como STATELESS (sin estado)
-                // Spring Security no creará ni usará sesiones HTTP.
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
-                // Definimos el proveedor de autenticación
-                .authenticationProvider(authenticationProvider)
-
-                // Añadimos nuestro filtro de JWT ANTES del filtro estándar de autenticación
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
+    return http.build();
+}
     
-   @Bean
+@Bean
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     
     configuration.setAllowedOrigins(List.of(
-            "http://localhost:4200",
-            "https://back-end-products.onrender.com",
-            "https://front-end-products-six.vercel.app" 
+        "http://localhost:4200",
+        "https://front-end-products-six.vercel.app"
     ));
 
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
