@@ -67,25 +67,22 @@ public class SecurityConfig {
         return http.build();
     }
     
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Permitir el origen de Angular (ajusta el puerto si es necesario)
-        configuration.setAllowedOrigins(List.of("http://localhost:4200")); 
-        
-        // Permitir los métodos HTTP que usas (GET, POST, etc.)
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        // Permitir las cabeceras, especialmente Authorization para el token JWT
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        
-        // Permitir credenciales si fuera necesario (opcional en JWT stateless, pero útil a veces)
-        configuration.setAllowCredentials(true);
+   @Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    
+    configuration.setAllowedOrigins(List.of(
+            "http://localhost:4200",
+            "https://back-end-products.onrender.com",
+            "https://front-end-products-six.vercel.app/" 
+    ));
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplicar esta configuración a todas las rutas
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+    configuration.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+}
 }
