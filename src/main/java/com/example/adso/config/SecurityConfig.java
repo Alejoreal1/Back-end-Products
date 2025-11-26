@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,10 +44,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         
                         // Endpoints de productos:
-                        // Solo ADMIN puede crear productos (POST)
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/products").hasAuthority(com.example.adso.model.Role.ADMIN.name())
-                        // USER y ADMIN pueden ver productos (GET)
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products").hasAnyAuthority(com.example.adso.model.Role.ADMIN.name(), com.example.adso.model.Role.USER.name())
+                    .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/products").hasAnyRole("ADMIN", "USER")
+
 
                         // Todas las demás peticiones deben estar autenticadas
                         .anyRequest().authenticated()
